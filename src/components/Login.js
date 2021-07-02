@@ -1,10 +1,13 @@
 import React,{useState,useEffect} from 'react'
-import {Link} from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 const SITE_KEY = "6LdFmGsbAAAAAP9O3oK2h9FLN5ldyEbHNvPes4L6";
 
 function Login() {
+    const history=useHistory();
 
-    const [data, setdata] = useState({email:'',password:'',messageSent:false});
+
+
+    const [user, setUser] = useState({email:'',password:'',messageSent:false});
 
     
   
@@ -13,7 +16,7 @@ function Login() {
     const handleChange = (e) => {
         name = e.target.name;
         value = e.target.value;
-        setdata({ ...data, [name]: value });
+        setUser({ ...user, [name]: value });
     
       };
 
@@ -57,15 +60,15 @@ function Login() {
       // call a backend API to verify reCAPTCHA response
 
       const submitData = token => {
-        fetch('http://localhost:4000/verify', {
+        fetch('http://localhost:5000/verify', {
           method: 'POST',
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
             
-            "email": data.email,
-            "password": data.password,
+            "email": user.email,
+            "password": user.password,
             "g-recaptcha-response": token
           })
         }).then(res => res.json()).then(res => {
@@ -74,15 +77,55 @@ function Login() {
           if(res.score>0.6){
             //------
             //send the email and password for passport authentication (make an API to backend)
+              postLoginData();
+
+
+
           }
           else{
               //-----
               //dont allow entry to the user.
+              history.push('/login');
           }
          
      
         });
-      }
+      };
+
+      const postLoginData = async () => {
+    
+        const res = await fetch("/users/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email:user.email, password:user.password
+          })
+    
+        });
+        const data = await res.json();
+    
+
+        if(data){
+          //Check if the login was successful and then pass the name of user as prop to Session.js to show 'Welcome {name}'
+          // history.push('/session');
+          
+        }
+        else{
+            //If the credentials were wrong then alert wrong credentials
+            // alert('Wrong credentials');
+    
+          // history.push('/login');
+    
+        }
+    
+    
+    
+    
+    
+      };
+
 
     return (
         <div>
@@ -90,11 +133,11 @@ function Login() {
             <form >
                 <div>
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" value={data.email} onChange={handleChange} required/>
+                    <input type="email" id="email" name="email" value={user.email} onChange={handleChange} required/>
                 </div>
                 <div>
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" value={data.password} onChange={handleChange} required/>
+                    <input type="password" id="password" name="password" value={user.password} onChange={handleChange} required/>
                 </div>
                 <button onClick={handleOnClick}>Login</button>
                 
