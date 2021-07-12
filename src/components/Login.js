@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from 'react'
 import { Link, useHistory } from 'react-router-dom';
-const SITE_KEY = "6LdFmGsbAAAAAP9O3oK2h9FLN5ldyEbHNvPes4L6";
+const SITE_KEY = "site_key";
 
 function Login() {
     const history=useHistory();
